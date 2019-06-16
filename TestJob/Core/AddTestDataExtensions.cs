@@ -15,11 +15,15 @@ namespace TestJob.Core
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Data.UserEntity[]>(json);
 
-            var dbContext = app.ApplicationServices.GetService<Data.UserDbContext>();
+            using (var scope = app.ApplicationServices.CreateScope())
+            using (var dbContext = scope.ServiceProvider.GetService<Data.UserDbContext>())
+            {
+                dbContext.Users.AddRange(data);
 
-            dbContext.Users.AddRange(data);
+                dbContext.SaveChanges();
+            }
 
-            dbContext.SaveChanges();
+                
         }
     }
 }

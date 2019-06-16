@@ -22,10 +22,11 @@ namespace TestJob.Core.Services
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
-                query = query.Where(u => u.Email.Contains(filter) || 
-                                         u.FirstName.Contains(filter) || 
-                                         u.LastName.Contains(filter) || 
-                                         u.Login.Contains(filter));
+                filter = filter.ToLower();
+                query = query.Where(u => u.Email.ToLower().Contains(filter) || 
+                                         u.FirstName.ToLower().Contains(filter) || 
+                                         u.LastName.ToLower().Contains(filter) || 
+                                         u.Login.ToLower().Contains(filter));
             }
 
             int totalCount = await query.CountAsync();
@@ -43,6 +44,44 @@ namespace TestJob.Core.Services
                 TotalCount = totalCount
             };
             
+        }
+
+        public async Task<UserEntity> GetUserAsync(int id)
+        {
+            return await _ctx.Users.FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<UserEntity> DeleteAsync(int id)
+        {
+            var user = await _ctx.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user != null)
+            {
+                _ctx.Users.Remove(user);
+                await _ctx.SaveChangesAsync();
+                return user;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<UserEntity> SaveAsync(UserEntity user)
+        {
+            if (user.Id > 0)
+            {
+                var entry = _ctx.Users.Attach(user);
+                entry.State = EntityState.Modified;
+            }
+            else
+            {
+                //эмулируем автоинкремент для InMemory database
+                var max = _ctx.Users.Max(u => u.Id);
+                user.Id = max + 1;
+                await _ctx.Users.AddAsync(user);
+            }
+            var res = await _ctx.SaveChangesAsync();
+            return user;
         }
 
         private string GetSortValue(SortDefenition sort)
