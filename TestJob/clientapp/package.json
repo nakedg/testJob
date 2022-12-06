@@ -17,7 +17,7 @@
     "bootstrap-vue": "2.0.0-rc.23",
     "vee-validate": "2.2.10",
     "axios": "0.19.0",
-    "qs": "6.7.0",
+    "qs": "6.7.3",
     "@fortawesome/fontawesome-free": "5.10.0-4",
     "vue-loading-overlay": "3.2.0"
   },
